@@ -1,0 +1,7 @@
+---
+import {getArtistPathFromURL} from "@src/utils/songkick"
+
+const {url, text} = Astro.props;
+---
+
+<li><a href={getArtistPathFromURL(url)}>{text}</a></li>

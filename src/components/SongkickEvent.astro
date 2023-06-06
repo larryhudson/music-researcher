@@ -1,26 +1,10 @@
 ---
 import Dump from "./Dump.astro";
+import {getArtistPathFromURL} from "@src/utils/songkick"
 
 const {data} = Astro.props;
-
-function getArtistPathFromURL(url) {
-  // Remove query parameters from the URL
-  const urlWithoutParams = url.split('?')[0];
-
-  // Split the URL by slashes to get the artist ID
-  const parts = urlWithoutParams.split('/');
-
-  // Get the last part of the URL which should be the artist ID
-  const artistID = parts[parts.length - 1];
-
-  // Construct the artist path
-  const artistPath = `/songkick/artist/${artistID}`;
-
-  return artistPath;
-  }
-
-
 ---
+
 <p>Description: {data.description}</p>
 <p>Artists: {data.performer.map(artist => (<a href={getArtistPathFromURL(artist.sameAs)}>{artist.name}</a>))}</p>
 <Dump data={data} />

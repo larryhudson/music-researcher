@@ -1,21 +1,33 @@
 ---
-import {lookupEventsForArtist, getArtistNameFromId} from "@src/utils/songkick";
+import {lookupDataForArtist, getArtistNameFromId} from "@src/utils/songkick";
 import Layout from "@src/components/Layout.astro";
 import Dump from "@src/components/Dump.astro";
 import SongkickEvent from "@src/components/SongkickEvent.astro";
 import LookupButton from "@src/components/LookupButton.astro";
+import SongkickArtist from "@src/components/SongkickArtist.astro";
 
 const artistId = Astro.params.artistId;
-const events = await lookupEventsForArtist({artistId});
+const {events, artists} = await lookupDataForArtist({artistId});
 const artistName = await getArtistNameFromId({artistId});
 const songkickUrl = `https://songkick.com/artists/${artistId}`
+
+const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(artistName)}/artists`
 ---
+
 
 <Layout>
 	<p><a href={songkickUrl}>View more info on Songkick</a></p>
 	<LookupButton service="discogs" searchType="artist" query={artistName} />
 
 	<LookupButton service="bandcamp" query={artistName} />
+
+	<h2>Artists</h2>
+	<ul>
+	{artists.map(artist => (
+	<SongkickArtist url={artist.sameAs} text={artist.name} />
+	))}
+	</ul>
+	<Dump data={artists} />
 
 	<h2>Events</h2>
 	{events.map(event => (
