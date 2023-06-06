@@ -1,0 +1,36 @@
+---
+import {search, extractArtistIdFromSubdomain} from "@src/utils/bandcamp";
+const searchQuery = Astro.url.searchParams.get('q');
+const searchResults = await search({searchType: 'artist', query: searchQuery});
+console.log(searchResults);
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1>Astro</h1>
+		<h2>Bandcamp search</h2>
+		<form>
+			<label for="search-input">
+			<input type="text" name="q" id="search-input" />
+			<button>Search</button>
+		</form>
+		<h2>Search results</h2>
+		<ul>
+			{searchResults.map(result => 
+			<li>	
+				<img src={result.img} alt="" />
+				<a href={`/bandcamp/${extractArtistIdFromSubdomain(result.item_url_root)}`}>{result.name}</a>
+			</li>
+			)}
+		</ul>
+		<pre>{JSON.stringify(searchResults,null,2)}</pre>
+	</body>
+
+</html>

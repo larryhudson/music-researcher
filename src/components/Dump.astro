@@ -1,0 +1,7 @@
+---
+const {data} = Astro.props;
+---
+<details>
+	<summary>Dump</summary>
+	<pre>{JSON.stringify(data,null,2)}</pre>
+</details>

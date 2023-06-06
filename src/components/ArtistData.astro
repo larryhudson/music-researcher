@@ -1,0 +1,33 @@
+
+---
+import {getAppUrlFromDiscogsUrl} from "@src/utils/discogs";
+import LookupButton from "./LookupButton.astro";
+// TODO: get bandcamp URL from discogs 'sameAs'
+const {data} = Astro.props;
+
+---
+<LookupButton service="bandcamp" query={data.name} />
+<LookupButton service="songkick" query={data.name} />
+<h2>Artist data</h2>
+<dl>
+	<dt>Name:</dt>
+	<dd>{data.name}</dd>
+
+	<dt>Description:</dt>
+	<dd>{data.description}</dd>
+</dl>
+
+<h3>Members</h3>
+<ul>
+	{data.member.map(member => (
+	<li><a href={getAppUrlFromDiscogsUrl(member['@id'])}>{member.name}</a></li>
+	))}
+</ul>
+
+<h3>Albums</h3>
+<ul>
+	{data.album.map(album => (
+	<li><a href={getAppUrlFromDiscogsUrl(album['@id'])}>{album.name}</a></li>
+	))}
+</ul>
+<pre>{JSON.stringify(data,null,2)}</pre>

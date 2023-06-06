@@ -1,0 +1,22 @@
+---
+import {search} from "@src/utils/songkick";
+import Layout from "@src/components/Layout.astro";
+
+const searchQuery = Astro.url.searchParams.get('q');
+const searchResults = await search({query: searchQuery});
+---
+
+<Layout>
+    <form>
+    <label for="search-input">Search query</label>
+    <input id="search-input" name="q" value={searchQuery} />
+    <button>Search</button>
+    </form>
+    
+    <h2>Search results</h2>
+    <ul>
+        {searchResults.map(searchResult => (
+        <li><a href={`/songkick/artist/${searchResult.id}`}>{searchResult.name}</a></li>
+        ))}
+    <pre>{JSON.stringify(searchResults,null,2)}</pre>
+</Layout>

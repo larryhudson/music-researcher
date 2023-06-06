@@ -1,47 +1,53 @@
-# Astro Starter Kit: Minimal
+# A music researcher tool
 
-```
-npm create astro@latest -- --template minimal
-```
+So this is a tool that will help music fans explore music, track a queue of music they want to check out, and find connections.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
+## Ideas
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- listen to song previews using Spotify
+- search the web for reviews, articles, and save articles for reading
+- explore record labels using Discogs data
+- search wikipedia for data about band, album, etc?
+- for a review, use AI to extract mentioned artists?
 
-## 🚀 Project Structure
+## Basic plan
 
-Inside of your Astro project, you'll see the following folders and files:
+To get this going:
+1. Plan the database structure.
+2. Plan the frontend and backend functions.
+3. Start building.
 
-```
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## Database structure
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Artist
+- spotifyArtistId
+- name
+- discogsArtistId
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Album
+- artists
+- name
+- spotifyAlbumId
+- discogsAlbumId?
 
-Any static assets, like images, can be placed in the `public/` directory.
+Track
 
-## 🧞 Commands
+Record label
 
-All commands are run from the root of the project, from a terminal:
+Website
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:3000`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+Article
 
-## 👀 Want to learn more?
+User
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+QueueItem
+
+Comment
+
+LogRecord
+
+## What the homepage is going to be like
+
+Could start by showing you your top artists, artists of your liked songs, etc?
+
+

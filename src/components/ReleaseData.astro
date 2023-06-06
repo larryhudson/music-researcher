@@ -1,0 +1,18 @@
+---
+import {getAppUrlFromDiscogsUrl} from "@src/utils/discogs";
+const {data} = Astro.props;
+
+---
+<h2>Release data</h2>
+<dl>
+	<dt>Name:</dt>
+	<dd>{data.name}</dd>
+	<dt>Artist:</dt>
+	<dd><a href={getAppUrlFromDiscogsUrl(data.releaseOf.byArtist[0]['@id'])}>{data.releaseOf.byArtist[0].name}</a></dd>
+
+	<dt>Description:</dt>
+	<dd>{data.description}</dd>
+	<dt>Record label:</dt>
+	<dd><a href={getAppUrlFromDiscogsUrl(data.recordLabel[0]['@id'])}>{data.recordLabel[0].name}</a></dd>
+</dl>
+<pre>{JSON.stringify(data,null,2)}</pre>

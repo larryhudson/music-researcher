@@ -1,0 +1,10 @@
+---
+const {service, query, searchType} = Astro.props
+---
+
+<form action={`/search/${service}`}>
+	{searchType && (
+	<input type="hidden" name="searchType" value={searchType} />
+	)}
+	<button name="q" value={query}>Search on {service}</button>
+</form>

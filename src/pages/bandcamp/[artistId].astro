@@ -1,0 +1,36 @@
+---
+import {getArtistDataFromHomePage} from "@src/utils/bandcamp";
+import Layout from "@src/components/Layout.astro";
+const artistId = Astro.params.artistId;
+
+const artistData = await getArtistDataFromHomePage({artistId});
+const releases = artistData?.releases;
+---
+
+
+<Layout>
+    <h2>{artistData.name}</h2>
+    <p>{artistData.location}</p>
+
+    <h3>Releases</h3>
+    <ul>
+    {releases.map(release => (
+    <li>
+        <a href={release.url}>
+        <img src={release.imgUrl} height="100" width="100" alt="" />
+            {release.title}
+        </a>
+        <form action="/search/discogs"><button name="q" value={`${artistData.name} ${release.title}`}>Search on Discogs</button></form>
+    </li>
+    ))}
+    </ul>
+    <pre>{JSON.stringify(artistData,null,2)}</pre>
+</Layout>
+
+<style>
+    img {
+        display: block;
+    }
+
+    ul { list-style: none; display: flex; flex-wrap: wrap; flex-grow: 0; }
+</style>

@@ -1,0 +1,33 @@
+---
+import {getDiscogsItemData} from "@src/utils/discogs";
+import Layout from "@src/components/Layout.astro";
+import Dump from "@src/components/Dump.astro";
+import ReleaseData from "@src/components/ReleaseData.astro";
+import ArtistData from "@src/components/ArtistData.astro";
+
+const itemId = Astro.params.itemId;
+const itemType = Astro.params.itemType;
+const componentByItemType = {
+    'release': ReleaseData,
+    'artist': ArtistData
+}
+
+const DataComponent = componentByItemType[itemType] || Dump;
+const {itemData, dsData, releaseCredits} = await getDiscogsItemData({itemId, itemType});
+---
+
+<Layout>
+    <h2>Item data</h2>
+    <DataComponent data={itemData} />
+
+    <h2>DS data</h2>
+
+    <pre>{JSON.stringify(dsData,null,4)}</pre>
+    <h2>Release credits</h2>
+    <ul>
+        {releaseCredits && releaseCredits.map(credit => (
+        <li><a href={`/discogs${credit.siteUrl}`}>{credit.creditRole} - {credit.name}</a></li>
+        ))}
+    </ul>
+    <pre>{JSON.stringify(releaseCredits,null,2)}</pre>
+</Layout>

@@ -1,0 +1,16 @@
+---
+import {search} from "@src/utils/discogs";
+import Layout from "@src/components/Layout.astro";
+const searchQuery = Astro.url.searchParams.get('q');
+const searchType = Astro.url.searchParams.get('searchType');
+const searchResults = await search({searchType, query: searchQuery});
+---
+
+<Layout>
+    <h2>Search results</h2>
+    <ul>
+        {searchResults.map(searchResult => (
+        <li><a href={`/discogs${searchResult.uri}`}>{searchResult.type} - {searchResult.title}</a></li>
+        ))}
+    <pre>{JSON.stringify(searchResults,null,2)}</pre>
+</Layout>
