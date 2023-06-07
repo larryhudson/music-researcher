@@ -12,6 +12,7 @@
   "dependencies": {
     "@astrojs/node": "^5.1.4",
     "astro": "^2.5.5",
-    "cheerio": "^1.0.0-rc.12"
+    "cheerio": "^1.0.0-rc.12",
+    "p-map": "^6.0.0"
   }
 }

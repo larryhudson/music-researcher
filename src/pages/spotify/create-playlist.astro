@@ -1,0 +1,18 @@
+---
+import {createPlaylistWithArtists} from "@src/utils/spotify";
+import Dump from "@src/components/Dump.astro";
+const formData = await Astro.request.formData();
+const playlistName = formData.get('playlistName');
+const artistIds = formData.getAll('artistId');
+const authToken = Astro.cookies.get('spotify-auth-token').value;
+
+await createPlaylistWithArtists({artistIds, playlistName, authToken});
+
+---
+
+<form method="/spotify/create-playlist">
+  {spotifyArtists.map(artist => (<input type="hidden" name="artistId" value={artist.id} />))}
+  <button>Create playlist with these artists</button>
+</form>
+<Dump data={spotifyArtists} />
+

@@ -1,0 +1,9 @@
+---
+import {getAuthToken} from "@src/utils/spotify";
+import Dump from "@src/components/Dump.astro";
+const code = Astro.url.searchParams.get('code');
+const authToken = await getAuthToken({code}) 
+Astro.cookies.set('spotify-auth-token', authToken, {path: '/', httpOnly: true, sameSite: 'lax'});
+---
+
+<Dump data={authToken} />

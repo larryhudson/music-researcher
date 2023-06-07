@@ -27,6 +27,11 @@ const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(a
 	<SongkickArtist url={artist.sameAs} text={artist.name} />
 	))}
 	</ul>
+
+	<form method="POST" action="/spotify/lookup-multiple">
+		{artists.map(artist => (<input type="hidden" name="name" value={artist.name} />))}
+		<button>Lookup all artists on Spotify</button>
+	</form>
 	<Dump data={artists} />
 
 	<h2>Events</h2>

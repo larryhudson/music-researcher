@@ -1,0 +1,20 @@
+---
+import {search} from "@src/utils/spotify";
+import Layout from "@src/components/Layout.astro";
+import Dump from "@src/components/Dump.astro";
+const searchQuery = Astro.url.searchParams.get('q');
+console.log("searchQuery", searchQuery);
+const authToken = Astro.cookies.get('spotify-auth-token').value;
+const searchResults = await search({searchType: 'artist', searchQuery, authToken});
+---
+
+<Layout>
+	<h2>Spotify search</h2>
+	<form>
+		<label for="search-input">
+			<input type="text" name="q" id="search-input" />
+			<button>Search</button>
+	</form>
+	<h2>Search results</h2>
+	<Dump data={searchResults} />
+</Layout>
