@@ -5,14 +5,26 @@ import Layout from "@src/components/Layout.astro"
 <Layout>
 	<h2>Bandcamp search</h2>
 	<form action="/search/bandcamp">
-		<label for="bandcamp-input">Search bandcamp</label>
+		<label for="bandcamp-input">Search Bandcamp</label>
 		<input type="text" name="q" id="bandcamp-input" />
 		<button>Search</button>
 	</form>
 	<h2>Discogs search</h2>
 	<form action="/search/discogs">
-		<label for="discogs-input">Search discogs</label>
+		<label for="discogs-input">Search Discogs</label>
 		<input type="text" name="q" id="discogs-input" />
+		<button>Search</button>
+	</form>
+	<h2>Spotify search</h2>
+	<form action="/search/spotify">
+		<label for="spotify-input">Search Spotify</label>
+		<input type="text" name="q" id="spotify-input" />
+		<button>Search</button>
+	</form>
+	<h2>Songkick search</h2>
+	<form action="/search/songkick">
+		<label for="songkick-input">Search Songkick</label>
+		<input type="text" name="q" id="songkick-input" />
 		<button>Search</button>
 	</form>
 </Layout>

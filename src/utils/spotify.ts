@@ -59,7 +59,9 @@ export async function lookupMultipleArtists({artistNames, authToken}) {
 
 
 export async function lookupTopTrackIdsForArtist({artistId, numTracks, authToken}) {
-    const spotifyTopTracksUrl = `https://api.spotify.com/v1/artists/${artistId}/top-tracks`
+    console.log("Looking up top tracks for artist with ID", artistId);
+    console.log({artistId, numTracks, authToken})
+    const spotifyTopTracksUrl = `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=AU`
 
     const spotifyResponse = await fetch(spotifyTopTracksUrl, {headers: {Authorization: `Bearer ${authToken}`}});
 
@@ -68,18 +70,115 @@ export async function lookupTopTrackIdsForArtist({artistId, numTracks, authToken
 	const trackIds = spotifyData.tracks.map(track => track.id).slice(0, numTracks);
 	console.log("Track IDs:", trackIds);
 	return trackIds
+    } else {
+	const responseText = await spotifyResponse.text();
+	console.log(responseText);
     }
 }
 
 export async function getTopTracksForMultipleArtists({artistIds, numTracksPerArtist, authToken}) {
-    const result = await pMap(artistIds, (artistId) => lookupTopTrackIdsForArtist({artistId, numTracks: numTracksPerArtist, authToken}), {concurrency: 2})
+    const trackIdArrays = await pMap(artistIds, (artistId) => lookupTopTrackIdsForArtist({artistId, numTracks: numTracksPerArtist, authToken}), {concurrency: 2})
+    const trackIds = trackIdArrays.flat();
+    return trackIds;
+}
 
-    return result;
+async function getCurrentUserId({authToken}) {
+    const spotifyCurrentUserUrl = `https://api.spotify.com/v1/me`
+
+    const spotifyResponse = await fetch(spotifyCurrentUserUrl, {headers: {Authorization: `Bearer ${authToken}`}})
+
+    if (spotifyResponse.ok) {
+	const responseJson = await spotifyResponse.json();
+	return responseJson.id;
+    } else {
+	const responseText = await spotifyResponse.text();
+	throw new Error(responseText);
+    }
+}
+
+async function createEmptyPlaylist({playlistName, description, authToken}) {
+
+    const userId = await getCurrentUserId({authToken})
+    
+    const spotifyCreatePlaylistUrl = `https://api.spotify.com/v1/users/${userId}/playlists`
+
+    const requestData = {
+	name: playlistName,
+	description,
+	public: false,
+    }
+
+    const spotifyResponse = await fetch(spotifyCreatePlaylistUrl, {
+	method: 'POST',
+	body: JSON.stringify(requestData),
+	headers: {
+	    'Content-Type': 'application/json',
+	    'Authorization': `Bearer ${authToken}`
+	}
+    });
+
+    if (spotifyResponse.ok) {
+	const responseJson = await spotifyResponse.json();
+	console.log("Created playlist!")
+	console.log(responseJson)
+	return responseJson.id;
+    } else {
+	const responseText = await spotifyResponse.text();
+	console.log(responseText);
+	throw new Error(responseText);
+}
+}
+
+function chunkArray(array, chunkSize) {
+  const chunkedArray = [];
+  let index = 0;
+
+  while (index < array.length) {
+    chunkedArray.push(array.slice(index, index + chunkSize));
+    index += chunkSize;
+  }
+
+  return chunkedArray;
+}
+
+async function addTrackChunkToPlaylist({playlistId, trackIds, authToken}) {
+    const trackUris = trackIds.map(trackId => `spotify:track:${trackId}`);
+
+    const spotifyAddTracksUrl = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`
+
+    const spotifyResponse = await fetch(spotifyAddTracksUrl, {
+	method: 'POST',
+	headers: {
+	'Content-Type': 'application/json',
+	'Authorization': `Bearer ${authToken}`
+	},
+	body: JSON.stringify({uris: trackUris})
+    })
+
+    if (spotifyResponse.ok) {
+	console.log("Added tracks to playlist");
+	return true;
+    } else {
+	const responseText = await spotifyResponse.text();
+	throw new Error(responseText);
+    }
+
+}
+async function addTracksToPlaylist({playlistId, trackIds, authToken}) {
+
+    const chunksOfTrackIds = chunkArray(trackIds, 100)
+
+    const result = await pMap(chunksOfTrackIds, (chunkOfTrackIds) => addTrackChunkToPlaylist({playlistId, trackIds: chunkOfTrackIds, authToken}), {concurrency: 1});
+
+    console.log(result);
 }
 
 export async function createPlaylistWithArtists({playlistName, artistIds, authToken}) {
     const trackIds = await getTopTracksForMultipleArtists({artistIds, numTracksPerArtist: 3, authToken});
     
-    // create the playlist
-    // add the track ids to the playlist
+    const playlistId = await createEmptyPlaylist({playlistName, description: "Testing", authToken});
+
+    const done = await addTracksToPlaylist({playlistId, trackIds, authToken});
+
+    return done;
 }

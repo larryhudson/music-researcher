@@ -9,7 +9,7 @@ const spotifyArtists = await lookupMultipleArtists({artistNames, authToken});
 
 ---
 
-<form method="/spotify/create-playlist">
+<form action="/spotify/create-playlist" method="POST">
   {spotifyArtists.map(artist => (<input type="hidden" name="artistId" value={artist.id} />))}
   <button>Create playlist with these artists</button>
 </form>

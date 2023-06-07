@@ -4,15 +4,21 @@ import Dump from "@src/components/Dump.astro";
 const formData = await Astro.request.formData();
 const playlistName = formData.get('playlistName');
 const artistIds = formData.getAll('artistId');
+const action = formData.get('formaction');
+
 const authToken = Astro.cookies.get('spotify-auth-token').value;
 
-await createPlaylistWithArtists({artistIds, playlistName, authToken});
-
+if (action === 'create') {
+  await createPlaylistWithArtists({artistIds, playlistName, authToken});
+}
 ---
 
-<form method="/spotify/create-playlist">
-  {spotifyArtists.map(artist => (<input type="hidden" name="artistId" value={artist.id} />))}
-  <button>Create playlist with these artists</button>
+<form method="POST">
+  <label for="playlist-name-input">Playlist name</label>
+  <input id="playlist-name-input" name="playlistName" type="text" />
+  {artistIds.map(artistId => (<input type="hidden" name="artistId" value={artistId} />))}
+  
+  <button name="formaction" value="create">Create playlist with these artists</button>
 </form>
-<Dump data={spotifyArtists} />
+<Dump data={artistIds} />
 
