@@ -20,6 +20,17 @@ const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(a
 	<LookupButton service="discogs" searchType="artist" query={artistName} />
 
 	<LookupButton service="bandcamp" query={artistName} />
+	
+	<h2>Save to database</h2>
+	<form method="POST" action="/db/artist">
+		<input name="name" type="hidden" value={artistName} />
+		<input name="external_links__service" type="hidden" value="songkick" />
+		<input name="external_links__url" type="hidden" value={Astro.url} />
+		<input name="from" type="hidden" value={Astro.url} />
+		<button>Save</button>
+	</form>
+
+
 
 	<h2>Artists</h2>
 	<ul>

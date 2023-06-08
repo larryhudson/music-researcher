@@ -1,0 +1,8 @@
+---
+import {initDb, executeQuery} from "@src/utils/db";
+import Dump from "@src/components/Dump.astro";
+const response = executeQuery(`SELECT * from sqlite_master WHERE type='table'`)
+
+---
+
+<Dump data={response} />

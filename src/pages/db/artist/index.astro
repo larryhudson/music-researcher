@@ -1,0 +1,19 @@
+---
+import {executeStatement, executeQuery} from "@src/utils/db";
+import Dump from "@src/components/Dump.astro";
+
+const formData = await Astro.request.formData();
+const name = formData.get('name');
+const externalLinkService = formData.get('external_links__service');
+const externalLinkUrl = formData.get('external_links__url');
+
+// const createdArtist = executeStatement(`INSERT INTO artists (name) VALUES (?)`, [name]);
+
+// const createdExternalLink = executeStatement(`INSERT INTO external_links (entity_id, entity_type, service, url) VALUES (?, ?, ?, ?)`, [1, 'artist', externalLinkService, externalLinkUrl])
+// console.log(createdExternalLink);
+
+const artists = executeQuery(`SELECT * from artists`); 
+
+---
+
+<Dump data={artists} />
