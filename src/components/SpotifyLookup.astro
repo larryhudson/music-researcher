@@ -1,0 +1,71 @@
+---
+const {artist, album} = Astro.props;
+---
+
+<form data-action="spotify-lookup" action="/search/spotify/album-tracks.json">
+	<input type="hidden" name="artist" value={artist} />
+	<input type="hidden" name="album" value={album} />
+	<button>Lookup on Spotify</button>
+</form>
+
+<script>
+
+	async function lookupOnSpotify(form) {
+		
+		const formData = new FormData(form);
+
+		const urlString = new URLSearchParams(formData).toString();
+
+		console.log(urlString);
+
+		
+		// post the form using fetch
+		const response = await fetch(form.action + "?" + urlString);
+		const tracks = await response.json();
+
+		tracks.forEach((track, index) => {
+			const mp3Url = track.preview_url;
+			const playButton = document.createElement('button');
+			playButton.dataset.mp3Url = mp3Url;
+			playButton.innerText = (index + 1).toString();
+			form.parentElement.appendChild(playButton);
+		});
+
+		const stopButton = document.createElement('button');
+		stopButton.innerText = 'Stop'
+		stopButton.dataset.action = 'stop-playing';
+		form.parentElement.appendChild(stopButton);
+
+	}
+
+	document.addEventListener('submit', function(event) {
+		if (event.target.dataset.action !== 'spotify-lookup') return;
+		event.preventDefault();
+		lookupOnSpotify(event.target);
+	})
+
+	document.addEventListener('click', function(event) {
+		if (!event.target.dataset.mp3Url) return;
+
+		let audioPlayer;
+		audioPlayer = document.querySelector('audio');
+
+		if (!audioPlayer) {
+		   audioPlayer = document.createElement('audio');
+		   document.body.appendChild(audioPlayer);
+		}
+
+		audioPlayer.src = event.target.dataset.mp3Url;
+		audioPlayer.play();
+	})
+
+	document.addEventListener('click', function(event) {
+		if (event.target.dataset.action !== 'stop-playing') return;
+
+		const audioPlayer = document.querySelector('audio');
+
+		if (audioPlayer) {
+			audioPlayer.pause();
+		}
+	})
+</script>

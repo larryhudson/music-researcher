@@ -1,5 +1,6 @@
 ---
 import {getAppUrlFromDiscogsUrl} from "@src/utils/discogs";
+import Dump from "./Dump.astro"
 const {data} = Astro.props;
 
 ---
@@ -15,4 +16,4 @@ const {data} = Astro.props;
 	<dt>Record label:</dt>
 	<dd><a href={getAppUrlFromDiscogsUrl(data.recordLabel[0]['@id'])}>{data.recordLabel[0].name}</a></dd>
 </dl>
-<pre>{JSON.stringify(data,null,2)}</pre>
+<Dump {data} />

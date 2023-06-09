@@ -38,7 +38,36 @@ export async function search({searchQuery, searchType, authToken}) {
 
     const searchResults = await spotifyResponse.json();
 
-    return searchResults.artists.items;
+    const resultKeyByType = {
+	'artist': 'artists',
+	'album': 'albums',
+    }
+
+    const resultKey = resultKeyByType[searchType]
+
+    return searchResults[resultKey].items;
+}
+
+export async function lookupTracksForAlbumByQuery({artistName, albumName, authToken}) {
+    const searchQuery = artistName + " " + albumName;
+    const searchResults = await search({searchQuery, searchType: 'album', authToken});
+
+    // TODO: check that the first result is actually correct? 
+    const firstResult = searchResults[0]
+
+    const albumId = firstResult.id;
+
+    const albumTracksUrl = `https://api.spotify.com/v1/albums/${albumId}/tracks`
+    const albumTracksResponse = await fetch(albumTracksUrl, {headers: {Authorization: `Bearer ${authToken}`}});
+
+    if (!albumTracksResponse.ok) {
+	const responseText = await albumTracksResponse.text();
+	throw new Error(responseText);
+    }
+
+    const albumTracksJson = await albumTracksResponse.json();
+
+    return albumTracksJson.items;
 }
 
 export async function getFirstArtist({artistName, authToken}) {

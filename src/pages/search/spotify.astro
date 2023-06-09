@@ -3,9 +3,10 @@ import {search} from "@src/utils/spotify";
 import Layout from "@src/components/Layout.astro";
 import Dump from "@src/components/Dump.astro";
 const searchQuery = Astro.url.searchParams.get('q');
+const searchType = Astro.url.searchParams.get('type') || 'artist';
 console.log("searchQuery", searchQuery);
 const authToken = Astro.cookies.get('spotify-auth-token').value;
-const searchResults = await search({searchType: 'artist', searchQuery, authToken});
+const searchResults = await search({searchType, searchQuery, authToken});
 ---
 
 <Layout>

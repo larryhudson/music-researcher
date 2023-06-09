@@ -1,0 +1,31 @@
+---
+import SpotifyLookup from "./SpotifyLookup.astro"
+const {release} = Astro.props;
+
+console.log(release.artists)
+---
+
+<li>
+	<img src={release.img} alt="" height="100" width="100" loading="lazy" /><br />
+	<span class="artists">
+		{release.artists.map(artist => (
+		<a href={artist.url}>{artist.name}</a>
+		))}
+	</span> &ndash;
+	<a href={release.url}>{release.title}</a>
+	<br />
+	({release.labels?.map(label => (
+
+	<a href={label.url}>{label.name}</a>
+	))} {release.year})
+	<SpotifyLookup artist={release.artists[0].name} album={release.title} />
+</li>
+
+<style>
+	.artists a::after {
+		content: ', ';
+	}
+	.artists a:last-child::after {
+		content: '';
+	}
+</style>

@@ -1,0 +1,28 @@
+---
+import DiscogsRelease from "./DiscogsRelease.astro";
+const {groups} = Astro.props;
+---
+
+{groups.map(group => (
+<div>
+	<h3>{group.name}</h3>
+	<ul class="releases">
+	{group.releases.map(release => (
+	<DiscogsRelease {release} />
+	))}
+	</ul>
+</div>
+))}
+
+<style>
+	.releases {
+		list-style: none;
+		padding-left: 0;
+		flex-wrap: wrap;
+		display: flex;
+		gap: 1rem;
+	}
+
+	.releases > li {
+		flex: 0 1 20%;
+	}
