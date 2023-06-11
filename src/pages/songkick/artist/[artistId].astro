@@ -33,9 +33,9 @@ const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(a
 
 
 	<h2>Artists</h2>
-	<ul>
+	<ul class="songkick-artists">
 	{artists.map(artist => (
-	<SongkickArtist url={artist.sameAs} text={artist.name} />
+	<SongkickArtist url={artist.sameAs} text={artist.name} count={artist.count} />
 	))}
 	</ul>
 
@@ -51,3 +51,9 @@ const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(a
 	))}
 </Layout>
 
+<style>
+	.songkick-artists {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+</style>

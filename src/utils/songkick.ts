@@ -45,24 +45,26 @@ export async function lookupEventsForArtist({artistId, pageNum=1}) {
     }).get()
 }
 
-export function getUniqueArtistsFromEvents({events}) {
-    // each event has a 'performer' key which is an array of artists
+export function getUniqueArtistsFromEvents({ events }) {
+  const allArtists = events.flatMap((event) => event.performer);
 
-    const allArtists = events.map(event => event.performer).flat();
+  const uniqueArtists = [];
 
-    const uniqueArtists = [];
+  for (const thisArtist of allArtists) {
+    const existingArtist = uniqueArtists.find(
+      (artist) => artist.sameAs === thisArtist.sameAs
+    );
 
-    for (const thisArtist of allArtists) {
-	const isKnown = uniqueArtists.some(otherArtist => {
-	    return otherArtist.sameAs === thisArtist.sameAs; 
-	});
-
-	if (!isKnown) {
-	    uniqueArtists.push(thisArtist);
-	}
+    if (existingArtist) {
+      existingArtist.count++;
+    } else {
+      uniqueArtists.push({ ...thisArtist, count: 1 });
     }
+  }
 
-    return uniqueArtists;
+  uniqueArtists.sort((a, b) => b.count - a.count);
+
+  return uniqueArtists;
 }
 
 export async function lookupDataForArtist({artistId}) {

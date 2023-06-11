@@ -43,19 +43,14 @@ export async function search({searchQuery, searchType, authToken}) {
 	'album': 'albums',
     }
 
+    console.log(searchResults);
+
     const resultKey = resultKeyByType[searchType]
 
     return searchResults[resultKey].items;
 }
 
-export async function lookupTracksForAlbumByQuery({artistName, albumName, authToken}) {
-    const searchQuery = artistName + " " + albumName;
-    const searchResults = await search({searchQuery, searchType: 'album', authToken});
-
-    // TODO: check that the first result is actually correct? 
-    const firstResult = searchResults[0]
-
-    const albumId = firstResult.id;
+export async function lookupTracksForAlbum({albumId, authToken}) {
 
     const albumTracksUrl = `https://api.spotify.com/v1/albums/${albumId}/tracks`
     const albumTracksResponse = await fetch(albumTracksUrl, {headers: {Authorization: `Bearer ${authToken}`}});
@@ -67,7 +62,53 @@ export async function lookupTracksForAlbumByQuery({artistName, albumName, authTo
 
     const albumTracksJson = await albumTracksResponse.json();
 
+    console.log(albumTracksJson)
+
     return albumTracksJson.items;
+}
+
+export async function lookupTracksForArtist({artistId, authToken}) {
+
+    const artistTracksUrl = `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=AU`
+    const artistTracksResponse = await fetch(artistTracksUrl, {headers: {Authorization: `Bearer ${authToken}`}});
+
+    if (!artistTracksResponse.ok) {
+	const responseText = await artistTracksResponse.text();
+	throw new Error(responseText);
+    }
+
+    const artistTracksJson = await artistTracksResponse.json();
+    console.log(artistTracksJson);
+    return artistTracksJson.tracks;
+}
+
+export async function lookupTracksByQuery({artistName, albumName, searchType, authToken}) {
+    let searchQuery;
+    if (searchType === 'album') {
+	console.log("album searching!")
+	searchQuery = artistName + " " + albumName;
+    } else if (searchType === 'artist') {
+	searchQuery = artistName;
+    }
+
+    console.log("the search query is", searchQuery)
+
+
+    const searchResults = await search({searchQuery, searchType, authToken});
+
+    // TODO: check that the first result is actually correct? 
+    const firstResult = searchResults[0]
+    
+    if (searchType === 'album') {
+	const albumId = firstResult.id;
+	const tracks = await lookupTracksForAlbum({albumId, authToken});
+	return tracks;
+    } else if (searchType === 'artist') {
+	const artistId = firstResult.id;
+	const tracks = await lookupTracksForArtist({artistId, authToken});
+	return tracks;
+    }
+
 }
 
 export async function getFirstArtist({artistName, authToken}) {

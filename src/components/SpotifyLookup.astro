@@ -1,12 +1,18 @@
 ---
-const {artist, album} = Astro.props;
+const {artist, album, searchType} = Astro.props;
 ---
 
-<form data-action="spotify-lookup" action="/search/spotify/album-tracks.json">
+<form data-action="spotify-lookup" action="/search/spotify/lookup-tracks.json">
 	<input type="hidden" name="artist" value={artist} />
 	<input type="hidden" name="album" value={album} />
+	<input type="hidden" name="searchType" value={searchType} />
 	<button>Lookup on Spotify</button>
 </form>
+
+<style is:global>
+	form[data-action="spotify-lookup"] button { margin: 1rem; }
+</style>
+
 
 <script>
 
@@ -14,10 +20,11 @@ const {artist, album} = Astro.props;
 		
 		const formData = new FormData(form);
 
+		const searchType = formData.get('searchType');
+
 		const urlString = new URLSearchParams(formData).toString();
 
 		console.log(urlString);
-
 		
 		// post the form using fetch
 		const response = await fetch(form.action + "?" + urlString);
@@ -27,7 +34,13 @@ const {artist, album} = Astro.props;
 			const mp3Url = track.preview_url;
 			const playButton = document.createElement('button');
 			playButton.dataset.mp3Url = mp3Url;
-			playButton.innerText = (index + 1).toString();
+			if (searchType === 'artist') {
+				const imgUrl = track.album.images.at(-1).url;
+				playButton.innerHTML = `<img src="${imgUrl}" width="32" height="32" alt="" />`
+			} else {
+				playButton.innerText = (index + 1).toString();
+			}
+			playButton.setAttribute('title', track.name);
 			form.parentElement.appendChild(playButton);
 		});
 
@@ -39,13 +52,15 @@ const {artist, album} = Astro.props;
 	}
 
 	document.addEventListener('submit', function(event) {
-		if (event.target.dataset.action !== 'spotify-lookup') return;
-		event.preventDefault();
-		lookupOnSpotify(event.target);
+		if (event.target.dataset.action !== 'spotify-lookup')  return;
+			event.preventDefault();
+		const form = event.target.closest('[data-action="spotify-lookup"]');
+		lookupOnSpotify(form);
 	})
 
 	document.addEventListener('click', function(event) {
-		if (!event.target.dataset.mp3Url) return;
+		const mp3Button = event.target.closest('button[data-mp3-url]');
+		if (!mp3Button) return
 
 		let audioPlayer;
 		audioPlayer = document.querySelector('audio');
@@ -55,7 +70,8 @@ const {artist, album} = Astro.props;
 		   document.body.appendChild(audioPlayer);
 		}
 
-		audioPlayer.src = event.target.dataset.mp3Url;
+		console.log("should be playing this url", mp3Button.dataset.mp3Url);
+		audioPlayer.src = mp3Button.dataset.mp3Url;
 		audioPlayer.play();
 	})
 

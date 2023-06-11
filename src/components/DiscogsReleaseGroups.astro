@@ -19,10 +19,8 @@ const {groups} = Astro.props;
 		list-style: none;
 		padding-left: 0;
 		flex-wrap: wrap;
-		display: flex;
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
 		gap: 1rem;
 	}
 
-	.releases > li {
-		flex: 0 1 20%;
-	}

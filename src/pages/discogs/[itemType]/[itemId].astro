@@ -59,13 +59,23 @@ console.log({releaseGroups})
     {isLabel && (
     <h2>Releases</h2>
     <Dump data={releases} />
-    <div> 
+    <ul class="releases"> 
     {releases?.map(release => (
     <DiscogsRelease {release} />
     ))}
-    </div>
+    </ul>
     )}
 
     <h2>DS data</h2>
     <Dump data={dsData} />
 </Layout>
+
+<style>
+    .releases {
+        display: grid; 
+        grid-template-columns: 1fr 1fr 1fr;
+        list-style: none;
+        padding-left: 0;
+    }
+
+</style>
