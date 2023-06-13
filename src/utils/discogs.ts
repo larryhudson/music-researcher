@@ -135,6 +135,23 @@ function extractReleasesFromLabelHtml($) {
     return releases;
 }
 
+function extractInGroupsFromArtistHtml($) {
+    const inGroupsHeading = $('.artist-profile .profile .head:contains("In Groups:")').first()
+
+    const groupsDiv = $(inGroupsHeading).next();
+
+    const artistLinks = $(groupsDiv).find('a').map((_, aTag) => {
+	const name = $(aTag).text().trim();
+	const url = getAppUrlFromDiscogsUrl($(aTag).attr('href'));
+
+	return {name, url}
+    }).get();
+
+    return artistLinks;
+
+
+}
+
 export async function getDiscogsItemData({itemId, itemType} : {itemId: string, itemType: string}) {
     // fetch the URL
     const itemUrl = new URL(`https://discogs.com/${itemType}/${itemId}`);
@@ -146,7 +163,7 @@ export async function getDiscogsItemData({itemId, itemType} : {itemId: string, i
     const response = await fetch(itemUrl);
     const responseHtml = await response.text();
     const $ = cheerio.load(responseHtml);
-    let itemData, dsData, releaseCredits, releases;
+    let itemData, dsData, releaseCredits, releases, inGroups;
     try {
 
 	const itemDataJson = $(`#${itemType}_schema`).text();
@@ -162,5 +179,10 @@ export async function getDiscogsItemData({itemId, itemType} : {itemId: string, i
     if (itemType === 'label') {
 	releases = extractReleasesFromLabelHtml($);
     }
-    return {itemData, dsData, releaseCredits, releaseGroups, releases}
+
+    if (itemType === 'artist') {
+	inGroups = extractInGroupsFromArtistHtml($);
+    }
+
+    return {itemData, dsData, releaseCredits, releaseGroups, releases, inGroups}
 }

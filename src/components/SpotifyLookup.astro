@@ -16,20 +16,8 @@ const {artist, album, searchType} = Astro.props;
 
 <script>
 
-	async function lookupOnSpotify(form) {
+	function addTrackPreviewButtons({tracks, searchType, parentElement}) {
 		
-		const formData = new FormData(form);
-
-		const searchType = formData.get('searchType');
-
-		const urlString = new URLSearchParams(formData).toString();
-
-		console.log(urlString);
-		
-		// post the form using fetch
-		const response = await fetch(form.action + "?" + urlString);
-		const tracks = await response.json();
-
 		tracks.forEach((track, index) => {
 			const mp3Url = track.preview_url;
 			const playButton = document.createElement('button');
@@ -41,13 +29,40 @@ const {artist, album, searchType} = Astro.props;
 				playButton.innerText = (index + 1).toString();
 			}
 			playButton.setAttribute('title', track.name);
-			form.parentElement.appendChild(playButton);
+			parentElement.appendChild(playButton);
 		});
 
 		const stopButton = document.createElement('button');
 		stopButton.innerText = 'Stop'
 		stopButton.dataset.action = 'stop-playing';
-		form.parentElement.appendChild(stopButton);
+		parentElement.appendChild(stopButton);
+	}
+
+	function addJumpLink({id, type, parentElement}) {
+		const linkTag = document.createElement('a');
+		linkTag.innerText = 'Open on Spotify';
+		linkTag.href = `spotify:${type}:${id}`
+
+		parentElement.appendChild(linkTag);
+	}
+
+	async function lookupOnSpotify(form) {
+
+		const formData = new FormData(form);
+
+		const searchType = formData.get('searchType');
+
+		const urlString = new URLSearchParams(formData).toString();
+
+		console.log(urlString);
+
+		// post the form using fetch
+		const response = await fetch(form.action + "?" + urlString);
+		const lookupData = await response.json();
+		addTrackPreviewButtons({tracks: lookupData.tracks, searchType, parentElement: form.parentElement})
+		if (lookupData.albumName) {
+			addJumpLink({id: lookupData.albumId, type: 'album', parentElement: form.parentElement})
+		}
 
 	}
 

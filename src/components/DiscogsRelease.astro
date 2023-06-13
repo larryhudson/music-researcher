@@ -1,5 +1,6 @@
 ---
 import SpotifyLookup from "./SpotifyLookup.astro"
+import LookupButton from "./LookupButton.astro";
 const {release} = Astro.props;
 
 console.log(release.artists)
@@ -19,6 +20,7 @@ console.log(release.artists)
 	<a href={label.url}>{label.name}</a>
 	))} {release.year})
 	<SpotifyLookup artist={release.artists[0].name} album={release.title} searchType="album" />
+	<LookupButton service="songkick" query={release.artists[0].name}  searchType="artist" /> 
 </li>
 
 <style>

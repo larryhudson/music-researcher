@@ -13,9 +13,29 @@
 </html>
 
 <style is:global>
+	:root {
+		--text: #000000;
+		--background: #dcf8ff;
+		--primary-button-bg: #0248de;
+		--primary-button-text: #fff;
+		--secondary-button: #fbfaff;
+		--accent: #170179;
+	}
+
 	html {
-		color-scheme: light dark;
+		/* color-scheme: light dark; */
 		font-family: system-ui;
+		background-color: var(--background);
+		color: var(--text);
+	}
+
+	button {
+		background-color: var(--primary-button-bg);
+		color: var(--primary-button-text);
+	}
+
+	a {
+		color: var(--accent);
 	}
 
 	body {

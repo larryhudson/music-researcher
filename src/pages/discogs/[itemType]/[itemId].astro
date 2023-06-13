@@ -21,7 +21,7 @@ const isLabel = itemType === 'label';
 const fullDiscogsUrl = `https://www.discogs.com/${itemType}/${itemId}`;
 
 const DataComponent = componentByItemType[itemType] || Dump;
-const {itemData, dsData, releaseCredits, releaseGroups, releases} = await getDiscogsItemData({itemId, itemType});
+const {itemData, dsData, releaseCredits, releaseGroups, releases, inGroups} = await getDiscogsItemData({itemId, itemType});
 console.log({releaseGroups})
 ---
 
@@ -39,6 +39,16 @@ console.log({releaseGroups})
     <p><a href={fullDiscogsUrl}>View more info on Discogs</a></p>
 
     <DataComponent data={itemData} />
+
+    {inGroups && (
+    <h2>In groups</h2>
+    <ul>
+        {inGroups.map(group => (
+            <li><a href={group.url}>{group.name}</a></li>
+        ))}
+    </ul>
+    )}
+
 
     {isReleaseOrMaster && (
     <h2>Release credits</h2>

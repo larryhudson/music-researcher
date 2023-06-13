@@ -101,12 +101,18 @@ export async function lookupTracksByQuery({artistName, albumName, searchType, au
     
     if (searchType === 'album') {
 	const albumId = firstResult.id;
+	const albumName = firstResult.name;
 	const tracks = await lookupTracksForAlbum({albumId, authToken});
-	return tracks;
+	return {
+	    tracks,
+	    albumId,
+	    albumName
+	}
     } else if (searchType === 'artist') {
+	const artistName = firstResult.name;
 	const artistId = firstResult.id;
 	const tracks = await lookupTracksForArtist({artistId, authToken});
-	return tracks;
+	return {tracks, artistName};
     }
 
 }
