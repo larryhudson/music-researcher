@@ -1,0 +1,35 @@
+---
+import Layout from "@src/components/Layout.astro";
+import Dump from "@src/components/Dump.astro";
+
+import {executeStatement, executeQuery, executeGet} from "@src/utils/db"
+
+const artistId = Astro.params.id;
+
+if (Astro.request.method === 'POST') {
+	const formData = await Astro.request.formData();
+	const action = formData.get('formaction');
+
+	if (action === 'delete') {
+	const deleted = executeStatement(`DELETE FROM artists where id = (?);`, [artistId]);
+	return Astro.redirect('/db/artist');
+	}
+}
+
+const artist = executeGet(`SELECT name, description FROM artists WHERE id = (?) LIMIT 1;`, [artistId])
+
+const links = executeQuery(`SELECT service, url FROM external_links WHERE artist_id = (?);`, [artistId])
+---
+
+<Layout title={`DB: ${artist.name}`}>
+	<h1>Artist: {artist.name}</h1>
+	<Dump data={artist} />
+
+	<h2>Links</h2>
+	<ul>
+	{links.map(link => (
+	<li><a href={link.url}>{link.service}</a></li>
+	))}
+	</ul>
+	<Dump data={links} />
+</Layout>

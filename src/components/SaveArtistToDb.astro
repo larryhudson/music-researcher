@@ -1,0 +1,9 @@
+---
+const {artistName, service, serviceUrl} = Astro.props
+---
+<form method="POST" action="/db/artist">
+	<input name="name" type="hidden" value={artistName} />
+	<input name="service" type="hidden" value={service} />
+	<input name="serviceUrl" type="hidden" value={serviceUrl} />
+	<button>Save {artistName} to database</button>
+</form>

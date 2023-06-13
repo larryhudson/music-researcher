@@ -1,0 +1,8 @@
+---
+const {artistId} = Astro.props;
+---
+
+<form action={`/db/artist/${artistId}`} method="POST">
+	<input type="hidden" name="formaction" value="delete" />
+	<button>Delete</button>
+</form>

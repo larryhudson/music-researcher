@@ -9,10 +9,28 @@ export function executeStatement(sql, params = []) {
   return statement.run(params);
 }
 
+export function executeGet(sql, params = []) {
+  const statement = db.prepare(sql);
+  return statement.get(params);
+}
+
 // Function to execute a SQL query and return the result
 export function executeQuery(sql, params = []) {
   const statement = db.prepare(sql);
   return statement.all(params);
+}
+
+export function lookupArtistFromServiceUrl({serviceUrl}) {
+
+    const foundArtist = executeGet(`SELECT *
+FROM artists
+WHERE id = (
+SELECT artist_id
+FROM external_links
+WHERE url = (?)
+);`, [serviceUrl])
+
+    return foundArtist;
 }
 
 export function initDb() {
@@ -58,24 +76,19 @@ FOREIGN KEY (person_id) REFERENCES people(id)
 );`,
     `CREATE TABLE IF NOT EXISTS external_links (
 id INTEGER PRIMARY KEY,
-entity_id INTEGER,
 entity_type TEXT,
+artist_id INTEGER,
+album_id INTEGER,
+person_id INTEGER,
+release_id INTEGER,
 service TEXT,
 url TEXT,
-FOREIGN KEY (entity_id) REFERENCES artists(id) ON DELETE CASCADE,
-FOREIGN KEY (entity_id) REFERENCES albums(id) ON DELETE CASCADE
-);`,
-    `CREATE TABLE IF NOT EXISTS saved_items (
-id INTEGER PRIMARY KEY,
-user_id INTEGER,
-entity_id INTEGER,
-entity_type TEXT,
-FOREIGN KEY (user_id) REFERENCES users(id),
-FOREIGN KEY (entity_id) REFERENCES artists(id),
-FOREIGN KEY (entity_id) REFERENCES albums(id),
-FOREIGN KEY (entity_id) REFERENCES people(id),
-FOREIGN KEY (entity_id) REFERENCES releases(id)
-);`]
+FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE CASCADE,
+FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE
+FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE,
+FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE
+);`
+    ]
 
   for (let statement of createStatements) {
     executeStatement(statement);

@@ -1,19 +1,43 @@
 ---
 import {executeStatement, executeQuery} from "@src/utils/db";
 import Dump from "@src/components/Dump.astro";
+import Layout from "@src/components/Layout.astro";
+import DeleteFromDb from "@src/components/DeleteFromDb.astro";
+
+if (Astro.request.method === 'POST') {
 
 const formData = await Astro.request.formData();
 const name = formData.get('name');
-const externalLinkService = formData.get('external_links__service');
-const externalLinkUrl = formData.get('external_links__url');
+const externalLinkService = formData.get('service');
+const externalLinkUrl = formData.get('serviceUrl');
 
-// const createdArtist = executeStatement(`INSERT INTO artists (name) VALUES (?)`, [name]);
+const createdArtist = executeStatement(`INSERT INTO artists (name) VALUES (?)`, [name]);
 
-// const createdExternalLink = executeStatement(`INSERT INTO external_links (entity_id, entity_type, service, url) VALUES (?, ?, ?, ?)`, [1, 'artist', externalLinkService, externalLinkUrl])
-// console.log(createdExternalLink);
+const artistId = createdArtist.lastInsertRowid;
+
+const createdExternalLink = executeStatement(`INSERT INTO external_links (artist_id, entity_type, service, url) VALUES (?, ?, ?, ?)`, 
+[artistId, 'artist', externalLinkService, externalLinkUrl]
+)
+console.log(createdExternalLink);
+
+}
+
 
 const artists = executeQuery(`SELECT * from artists`); 
-
+const externalLinks = executeQuery(`SELECT * from external_links`);
 ---
 
-<Dump data={artists} />
+<Layout>
+	<h2>Artists</h2>
+	<ul>
+	{artists.map(artist => (
+	<li><a href={`/db/artist/${artist.id}`}>{artist.name}</a>
+	<DeleteFromDb artistId={artist.id} />
+	</li>
+	))}
+	</ul>
+
+	<Dump data={artists} />
+	<h2>Links</h2>
+	<Dump data={externalLinks} />
+</Layout>

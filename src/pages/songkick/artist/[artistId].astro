@@ -5,13 +5,19 @@ import Dump from "@src/components/Dump.astro";
 import SongkickEvent from "@src/components/SongkickEvent.astro";
 import LookupButton from "@src/components/LookupButton.astro";
 import SongkickArtist from "@src/components/SongkickArtist.astro";
+import SaveArtistToDb from "@src/components/SaveArtistToDb.astro";
+
+import {lookupArtistFromServiceUrl} from "@src/utils/db";
 
 const artistId = Astro.params.artistId;
+const artistInDb = lookupArtistFromServiceUrl({serviceUrl: Astro.url.toString()});
+console.log({artistInDb})
+
+
 const {events, artists} = await lookupDataForArtist({artistId});
 const artistName = await getArtistNameFromId({artistId});
 const songkickUrl = `https://songkick.com/artists/${artistId}`
 
-const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(artistName)}/artists`
 ---
 
 
@@ -22,15 +28,14 @@ const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(a
 	<LookupButton service="bandcamp" query={artistName} />
 	
 	<h2>Save to database</h2>
-	<form method="POST" action="/db/artist">
-		<input name="name" type="hidden" value={artistName} />
-		<input name="external_links__service" type="hidden" value="songkick" />
-		<input name="external_links__url" type="hidden" value={Astro.url} />
-		<input name="from" type="hidden" value={Astro.url} />
-		<button>Save</button>
-	</form>
-
-
+	<Dump data={artistInDb} />
+	
+	{artistInDb ? (
+	<p><a href={`/db/artist/${artistInDb.id}`}>View {artistInDb.name} in DB</a></p>
+	) : (
+	<SaveArtistToDb service="songkick" {artistName} serviceUrl={Astro.url} />
+	)}
+	
 
 	<h2>Artists</h2>
 	<ul class="songkick-artists">
