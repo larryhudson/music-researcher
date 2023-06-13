@@ -15,7 +15,7 @@ const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(a
 ---
 
 
-<Layout>
+<Layout title={artistName}>
 	<p><a href={songkickUrl}>View more info on Songkick</a></p>
 	<LookupButton service="discogs" searchType="artist" query={artistName} />
 
