@@ -1,13 +1,23 @@
 ---
 import Dump from "./Dump.astro";
-import {getArtistPathFromURL} from "@src/utils/songkick"
+import SpotifyLookup from "./SpotifyLookup.astro";
+import {getItemPathFromUrl} from "@src/utils/songkick"
 
 const {data} = Astro.props;
 ---
 
+<div>
 <p>Description: {data.description}</p>
-<p>Artists: {data.performer.map(artist => (<a href={getArtistPathFromURL(artist.sameAs)}>{artist.name}</a>))}</p>
+<p>Artists: {data.performer.map(artist => (
+<div>
+<a href={getItemPathFromUrl({url: artist.sameAs, itemType: 'artist'})}>{artist.name}
+</a>
+  <SpotifyLookup artist={artist.name} searchType="artist" />
+</div>
+
+))}</p>
 <Dump data={data} />
+</div>
 
 <style>
   a {

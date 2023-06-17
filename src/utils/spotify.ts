@@ -50,6 +50,20 @@ export async function search({searchQuery, searchType, authToken}) {
     return searchResults[resultKey].items;
 }
 
+export async function getTopArtists({authToken}) {
+   const topArtistsUrl = `https://api.spotify.com/v1/me/top/artists`
+    const topArtistsResponse = await fetch(topArtistsUrl, {headers: {Authorization: `Bearer ${authToken}`}});
+
+    if (!topArtistsResponse.ok) {
+	const responseText = await topArtistsResponse.text();
+	throw new Error(responseText);
+    }
+
+    const topArtistsJson = await topArtistsResponse.json();
+
+    return topArtistsJson.items;
+}
+
 export async function lookupTracksForAlbum({albumId, authToken}) {
 
     const albumTracksUrl = `https://api.spotify.com/v1/albums/${albumId}/tracks`

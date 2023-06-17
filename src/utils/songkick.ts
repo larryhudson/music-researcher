@@ -1,38 +1,57 @@
 import cheerio from "cheerio"
 
-export async function search({query}) {
+export async function search({query, searchType='artists'}) {
     const searchPageUrl = new URL(`https://www.songkick.com/search`) // ?query=Stuck&type=artists`;
     searchPageUrl.searchParams.set('query', query);
-    searchPageUrl.searchParams.set('type', 'artists');
+    searchPageUrl.searchParams.set('type', searchType);
+
+    console.log({searchPageUrl});
+
+    const liClassBySearchType = {
+	artists: 'artist',
+	venues: 'venue'
+    }
+
+    const liClass = liClassBySearchType[searchType]
 
     const searchPageHtml = await fetch(searchPageUrl.toString()).then(response => response.text());
 
     const $ = cheerio.load(searchPageHtml);
 
-    const searchResults = $('.event-listings li.artist').map((_, resultTag) => {
+    const searchResults = $(`.event-listings li.${liClass}`).map((_, resultTag) => {
 	const songkickUrl = $(resultTag).find('.summary a').attr('href');
-	const artistId = songkickUrl.split('/').at(-1);
+	const itemId = songkickUrl.split('/').at(-1);
 	return {
 	    name: $(resultTag).find('.summary a strong').text().trim(),
-	    id: artistId 
+	    id: itemId,
+	    type: liClass
 	}
     }).get();
 
     return searchResults;
 }
 
-export async function getEventsHtmlForArtist({artistId, pageNum=1}) {
+export async function getEventsHtmlForItem({itemId, itemType, pageNum=1}) {
 
-    const eventsPageUrl = `https://www.songkick.com/artists/${artistId}/gigography?page=${pageNum}`
+    const pluralByItemType = {
+	artist: 'artists',
+	venue: 'venues',
+    }
 
+    const itemTypePlural = pluralByItemType[itemType]
+
+    const eventsPageUrl = `https://www.songkick.com/${itemTypePlural}/${itemId}/gigography?page=${pageNum}`
+
+    console.log({eventsPageUrl});
+    
     const eventsPageHtml = await fetch(eventsPageUrl).then(response => response.text())
 
     return eventsPageHtml;
 }
 
-export async function lookupEventsForArtist({artistId, pageNum=1}) {
+export async function lookupEventsForItem({itemId, itemType, pageNum=1}) {
 
-    const eventsPageHtml = await getEventsHtmlForArtist({artistId, pageNum});
+    const eventsPageHtml = await getEventsHtmlForItem({itemId, itemType, pageNum});
 
     const $ = cheerio.load(eventsPageHtml);
 
@@ -67,32 +86,72 @@ export function getUniqueArtistsFromEvents({ events }) {
   return uniqueArtists;
 }
 
-export async function lookupDataForArtist({artistId}) {
+
+export function getUniqueVenuesFromEvents({ events }) {
+  const allVenues = events.map((event) => event.location);
+
+  const knownVenues = [];
+
+  for (const thisVenue of allVenues) {
+    const knownVenue = knownVenues.find(
+      (otherVenue) => otherVenue.name === thisVenue.name
+    );
+
+    if (knownVenue) {
+      knownVenue.count++;
+    } else {
+      knownVenues.push({ ...thisVenue, count: 1 });
+    }
+  }
+
+  knownVenues.sort((a, b) => b.count - a.count);
+
+  return knownVenues;
+}
+
+export async function lookupDataForItem({itemId, itemType}) {
 
     const pageNums = [1,2,3]
 
-    const eventsArrays = await Promise.all(pageNums.map(pageNum => lookupEventsForArtist({artistId, pageNum})))
+    const eventsArrays = await Promise.all(pageNums.map(pageNum => lookupEventsForItem({itemId, itemType, pageNum})))
 
     const events = eventsArrays.flat(); 
 
     const artists = getUniqueArtistsFromEvents({events});
 
-    return {events, artists}
+    const venues = getUniqueVenuesFromEvents({events});
+
+    return {events, artists, venues}
 }
 
-export async function getArtistNameFromId({artistId}) {
+export async function getItemNameFromId({itemId, itemType}) {
 
-    const eventsPageUrl = `https://www.songkick.com/artists/${artistId}`
+    const pluralByItemType = {
+	artist: 'artists',
+	venue: 'venues',
+    }
+
+    const itemTypePlural = pluralByItemType[itemType]
+
+    const eventsPageUrl = `https://www.songkick.com/${itemTypePlural}/${itemId}`
 
     const eventsPageHtml = await fetch(eventsPageUrl).then(response => response.text())
 
     const $ = cheerio.load(eventsPageHtml);
 
-    return $('.artist-overview h1').text().trim(); 
+
+    const selectorByItemType = {
+    artist: '.artist-overview h1',
+    venue: 'h1.h0.fn.org'
+    }
+
+    const selector = selectorByItemType[itemType]
+
+    return $(selector).text().trim(); 
 
 }
 
-export function getArtistPathFromURL(url) {
+export function getItemPathFromUrl({url, itemType}) {
     // Remove query parameters from the URL
     const urlWithoutParams = url.split('?')[0];
 
@@ -100,11 +159,10 @@ export function getArtistPathFromURL(url) {
     const parts = urlWithoutParams.split('/');
 
     // Get the last part of the URL which should be the artist ID
-    const artistID = parts[parts.length - 1];
+    const itemId = parts.at(-1);
 
     // Construct the artist path
-    const artistPath = `/songkick/artist/${artistID}`;
+    const itemPath = `/songkick/${itemType}/${itemId}`;
 
-    return artistPath;
+    return itemPath;
 }
-

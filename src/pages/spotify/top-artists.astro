@@ -1,0 +1,38 @@
+---
+import Layout from "@src/components/Layout.astro";
+import Dump from "@src/components/Dump.astro";
+import {getTopArtists} from "@src/utils/spotify";
+import LookupButton from "@src/components/LookupButton.astro";
+
+const authToken = Astro.cookies.get('spotify-auth-token').value;
+
+const topArtists = await getTopArtists({authToken});
+---
+
+<Layout title="Spotify - top artists">
+  <h1>Top artists on Spotify</h1>
+
+  <ul>
+    {topArtists.map(artist => (
+    <li>
+      <a href={`/spotify/artist/${artist.id}`}>
+      <img src={artist.images.at(-1).url} alt="" /><br />
+      {artist.name}</a>
+      <LookupButton service="songkick" query={artist.name} searchType="artist" /> 
+      <LookupButton service="discogs" query={artist.name} searchType="artist" /> 
+    </li>
+    ))}
+  </ul>
+
+  <Dump data={topArtists} />
+</Layout>
+
+<style>
+  ul {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    list-style: none;
+    padding-left: 0;
+  }
+</style>

@@ -1,11 +1,11 @@
 ---
-import {getArtistPathFromURL} from "@src/utils/songkick"
+import {getItemPathFromUrl} from "@src/utils/songkick"
 import SpotifyLookup from "./SpotifyLookup.astro";
 
 const {url, text, count} = Astro.props;
 ---
 
 <li>
-	<a href={getArtistPathFromURL(url)}>{text} (count: {count})</a>
+	<a href={getItemPathFromUrl({url, itemType: 'artist'})}>{text} (count: {count})</a>
 	<SpotifyLookup artist={text} searchType="artist" />
 </li>

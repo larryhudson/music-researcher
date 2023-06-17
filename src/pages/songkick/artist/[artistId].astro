@@ -1,5 +1,5 @@
 ---
-import {lookupDataForArtist, getArtistNameFromId} from "@src/utils/songkick";
+import {lookupDataForItem, getItemNameFromId} from "@src/utils/songkick";
 import Layout from "@src/components/Layout.astro";
 import Dump from "@src/components/Dump.astro";
 import SongkickEvent from "@src/components/SongkickEvent.astro";
@@ -11,11 +11,9 @@ import {lookupArtistFromServiceUrl} from "@src/utils/db";
 
 const artistId = Astro.params.artistId;
 const artistInDb = lookupArtistFromServiceUrl({serviceUrl: Astro.url.toString()});
-console.log({artistInDb})
 
-
-const {events, artists} = await lookupDataForArtist({artistId});
-const artistName = await getArtistNameFromId({artistId});
+const {events, artists, venues} = await lookupDataForItem({itemId: artistId, itemType: 'artist'});
+const artistName = await getItemNameFromId({itemId: artistId, itemType: 'artist'});
 const songkickUrl = `https://songkick.com/artists/${artistId}`
 
 ---
@@ -49,6 +47,17 @@ const songkickUrl = `https://songkick.com/artists/${artistId}`
 		<button>Lookup all artists on Spotify</button>
 	</form>
 	<Dump data={artists} />
+
+
+	<h2>Venues</h2>
+	<Dump data={venues} />
+	<ul>
+	{venues.map(venue => (
+	<li>{venue.name} (count: {venue.count})
+	<LookupButton service="songkick" query={venue.name} searchType="venues" />
+	</li>
+	))}
+	</ul>
 
 	<h2>Events</h2>
 	{events.map(event => (

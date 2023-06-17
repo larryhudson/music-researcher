@@ -1,0 +1,44 @@
+
+---
+import {lookupDataForItem, getItemNameFromId} from "@src/utils/songkick";
+import Layout from "@src/components/Layout.astro";
+import Dump from "@src/components/Dump.astro";
+import SongkickEvent from "@src/components/SongkickEvent.astro";
+import SongkickArtist from "@src/components/SongkickArtist.astro";
+
+const venueId = Astro.params.venueId;
+
+const {events, artists} = await lookupDataForItem({itemId: venueId, itemType: 'venue'});
+const venueName = await getItemNameFromId({itemId: venueId, itemType: 'venue'});
+const songkickUrl = `https://songkick.com/venues/${venueId}`
+
+---
+
+<Layout title={venueName}>
+	<p><a href={songkickUrl}>View more info on Songkick</a></p>
+	
+	<h2>Artists</h2>
+	<ul class="songkick-artists">
+	{artists.map(artist => (
+	<SongkickArtist url={artist.sameAs} text={artist.name} count={artist.count} />
+	))}
+	</ul>
+
+	<form method="POST" action="/spotify/lookup-multiple">
+		{artists.map(artist => (<input type="hidden" name="name" value={artist.name} />))}
+		<button>Lookup all artists on Spotify</button>
+	</form>
+	<Dump data={artists} />
+
+	<h2>Events</h2>
+	{events.map(event => (
+	<SongkickEvent data={event} />
+	))}
+</Layout>
+
+<style>
+	.songkick-artists {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+</style>
